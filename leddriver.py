@@ -34,6 +34,14 @@ class LEDDriver:
             self.LS1_State = (~(0x03<<self.LEDS[led])) & self.LS1_State
             self.controller.write_to_register(self.controller.LS1_r, self.LS1_State)
 
+    def LED_toggle(self, led):
+        if led in list(self.LEDS.keys())[0:4]:
+            self.LS0_State = 0x01<<self.LEDS[led] ^ self.LS0_State
+            self.controller.write_to_register(self.controller.LS0_r, self.LS0_State)
+        else:
+            self.LS1_State = 0x01<<self.LEDS[led] ^ self.LS1_State
+            self.controller.write_to_register(self.controller.LS1_r, self.LS1_State)
+        
 if __name__ == "__main__":
     L = LEDDriver()
     L.LED_on("LD3")
