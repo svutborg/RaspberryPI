@@ -1,4 +1,4 @@
-from i2c.pca9531 import PCA9531
+from myLib.i2c.pca9531 import PCA9531
 import collections
 
 class LEDDriver:
