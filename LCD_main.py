@@ -1,5 +1,5 @@
 from time import sleep
-import LCD
+import HAL.LCD
 
 LCD.init_display(4, 17, [27, 22, 10, 9, 11, 5, 6, 13], 1, 0)
 #LCD.init_display(21, 20, [13, 16, 19, 26], 0, 0)
