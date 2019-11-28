@@ -1,7 +1,7 @@
 import smbus
 from time import sleep
 
-class mcp32017:
+class mcp23017:
 
     IODIRA =   0x00
     IODIRB =   0x01

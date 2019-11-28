@@ -1,4 +1,4 @@
-import HAL.i2c.mcp23017 as mcp23017
+import HAL.i2c.mcp23017.mcp23017 as mcp23017
 A0 = 0x08
 A1 = 0x09
 A2 = 0x0A
@@ -23,6 +23,6 @@ PORTB = [B0, B1, B2, B3, B4, B5, B6, B7]
 
 def init_display(rs=A7, e=A6, d=PORTB, n_lines=0, font=0):
     global mcp
-    mcp = mcp23017.mcp32017()
+    mcp = mcp32017()
     mcp.write_register(mcp23017.IODIRA, 0x00)
     mcp.write_register(mcp23017.OLATA, 0x01)
