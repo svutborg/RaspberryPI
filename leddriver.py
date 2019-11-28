@@ -1,4 +1,4 @@
-from myLib.i2c import pca9531
+from myLib.HAL.i2c import pca9531
 import collections
 
 class LEDDriver:
@@ -11,13 +11,13 @@ class LEDDriver:
             ("LDR", 2),
             ("LDG", 4),
             ("LDB", 6),
-    ])  
+    ])
 
     def __init__(self):
         self.controller = pca9531.PCA9531(0x60)
         self.LS0_State = self.controller.read_from_register(self.controller.LS0_r)
         self.LS1_State = self.controller.read_from_register(self.controller.LS1_r)
-	
+
     def LED_on(self, led):
         if led in list(self.LEDS.keys())[0:4]:
             self.LS0_State = 0x01<<self.LEDS[led] | self.LS0_State
@@ -41,7 +41,7 @@ class LEDDriver:
         else:
             self.LS1_State = 0x01<<self.LEDS[led] ^ self.LS1_State
             self.controller.write_to_register(self.controller.LS1_r, self.LS1_State)
-        
+
 if __name__ == "__main__":
     L = LEDDriver()
     L.LED_on("LD3")
