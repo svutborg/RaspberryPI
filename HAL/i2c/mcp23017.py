@@ -1,4 +1,4 @@
-import smbus
+from smbus2 import SMBus
 from time import sleep
 
 class mcp23017:
@@ -27,12 +27,12 @@ class mcp23017:
     OLATB =    0x15
 
     def __init__(self, address=0):
-        self.address = 0b0110000 | address # [0 1 0 0 A2 A1 A0]
+        self.address = 0b0100000 | address # [0 1 0 0 A2 A1 A0]
         print(hex(self.address))
-        self.bus = smbus.SMBus(1)
+        self.bus = SMBus(1)
 
     def write_register(self, register, data):
-        self.bus.write_byte_data(self.address<<1, register, data)
+        self.bus.write_byte_data(self.address, register, data)
 
 
 

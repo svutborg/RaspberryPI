@@ -25,5 +25,13 @@ PORTB = [B0, B1, B2, B3, B4, B5, B6, B7]
 def init_display(rs=A7, e=A6, d=PORTB, n_lines=0, font=0):
     global mcp
     mcp = mcp23017()
-    mcp.write_register(mcp23017.IODIRA, 0x00)
-    mcp.write_register(mcp23017.OLATA, 0x01)
+    mcp.write_register(mcp23017.IODIRB, 0x00)
+    mcp.write_register(mcp23017.OLATB, ord('A'))
+
+    mcp.write_register(mcp23017.IODIRA, 0x3F)
+    mcp.write_register(mcp23017.OLATA, 0x80)
+    pass
+    mcp.write_register(mcp23017.OLATA, 0xC0)
+    pass
+    mcp.write_register(mcp23017.OLATA, 0x00)
+    
