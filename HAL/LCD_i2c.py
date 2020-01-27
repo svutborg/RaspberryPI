@@ -1,4 +1,5 @@
 from HAL.i2c.mcp23017 import mcp23017
+from time import sleep
 #import HAL.i2c.mcp23017.mcp23017 as mcp23017
 A0 = 0x00
 A1 = 0x01
