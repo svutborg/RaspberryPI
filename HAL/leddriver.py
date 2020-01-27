@@ -1,4 +1,4 @@
-from myLib.HAL.i2c import pca9531
+from HAL.i2c import pca9531
 import collections
 
 class LEDDriver:

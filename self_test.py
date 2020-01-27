@@ -78,11 +78,32 @@ directions = {
 }
 G.setmode(G.BCM)
 for dir in directions:
-    print(dir)
+    #print(dir)
     G.setup(directions[dir], G.IN)
-    while True:
+'''    while True:
         if G.input(directions[dir]) == 1:
             break
-
+G.cleanup'''
+while True:
+    if G.input(directions["up"]) == 1:
+        L.LED_on("LD1")
+    else:
+        L.LED_off("LD1")
+    if G.input(directions["down"]) == 1:
+        L.LED_on("LD2")
+    else:
+        L.LED_off("LD2")
+    if G.input(directions["left"]) == 1:
+        L.LED_on("LD3")
+    else:
+        L.LED_off("LD3")
+    if G.input(directions["right"]) == 1:
+        L.LED_on("LD4")
+    else:
+        L.LED_off("LD4")
+    if G.input(directions["push"]) == 1:
+        L.LED_on("LD5")
+    else:
+        L.LED_off("LD5")
 
 
