@@ -46,7 +46,6 @@ def BUTTONS_test():
 
 def MOTOR_test():
     print("Testing motor driver")
-    print("Testing Motordriver")
     G.setup([16,26,12,20,21,13], G.OUT)
     G.output([12,13], 1)
     print("M1")
@@ -80,7 +79,7 @@ def ADC_test(channel=0):
     to_send = spi.xfer2(to_send)
     G.output(8, G.HIGH)
     spi.close()
-    print(bin(to_send[1])+" "+bin(to_send[2]))
+    #print(bin(to_send[1])+" "+bin(to_send[2]))
     return ((to_send[1]&0x03)<<8) + to_send[2]
 
 def LED_test(N):
