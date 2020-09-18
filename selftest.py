@@ -1,30 +1,18 @@
 import RPi.GPIO as G
 from time import sleep
 import spidev
-#from gpiozero import MCP3008
-#from pca9685_driver import Device
-from HAL.i2c.pca9685 import PCA9685
+from HAL import leddriver
+from itertools import chain
 
 spi = spidev.SpiDev()
-driver = PCA9685(0x40)
+led = leddriver.LEDDriver()
+
 
 def Init():
     print("Initialising")
     G.setmode(G.BCM)
     
-    driver.write_to_register(driver.MODE1, 1)
-    driver.write_to_register(driver.MODE2, 0)
-    driver.write_to_register(driver.LEDX_YY_Z(0, 0, 1), 1<<4)
-    driver.write_to_register(driver.LEDX_YY_Z(0, 1, 1), 0)
-    driver.write_to_register(driver.LEDX_YY_Z(1, 0, 1), 1<<4)
-    driver.write_to_register(driver.LEDX_YY_Z(1, 1, 1), 0)
-    driver.write_to_register(driver.LEDX_YY_Z(2, 0, 1), 1<<4)
-    driver.write_to_register(driver.LEDX_YY_Z(2, 1, 1), 0)
-    
-    driver.write_to_register(driver.LEDX_YY_Z(8, 0, 1), 1<<4)
-    driver.write_to_register(driver.LEDX_YY_Z(8, 1, 1), 0)
-    driver.write_to_register(driver.LEDX_YY_Z(9, 0, 1), 1<<4)
-    driver.write_to_register(driver.LEDX_YY_Z(9, 1, 1), 0)
+    led.LED_OFF()
 
 def BUTTONS_test():
     print("Testing Buttons")
@@ -79,26 +67,20 @@ def ADC_test(channel=0):
     to_send = spi.xfer2(to_send)
     G.output(8, G.HIGH)
     spi.close()
-    #print(bin(to_send[1])+" "+bin(to_send[2]))
     return ((to_send[1]&0x03)<<8) + to_send[2]
 
 def LED_test(N):
     print("Testing LEDs")
-    for i in range(N): 
-        driver.write_to_register(driver.LEDX_YY_Z(2, 1, 1), 1<<4)
-        sleep(1)
-        driver.write_to_register(driver.LEDX_YY_Z(2, 1, 1), 0)
-        driver.write_to_register(driver.LEDX_YY_Z(1, 1, 1), 1<<4)
-        sleep(1)
-        driver.write_to_register(driver.LEDX_YY_Z(1, 1, 1), 0)
-        driver.write_to_register(driver.LEDX_YY_Z(0, 1, 1), 1<<4)
-        sleep(1)
-        driver.write_to_register(driver.LEDX_YY_Z(0, 1, 1), 0)
-        sleep(1)
+    for i in range(N):
+        for j in range(3):
+            for k in chain(range(256), range(255, -1, -1)):
+                led.LED_RGB(k if j == 0 else 0, k if j == 1 else 0, k if j == 2 else 0)
+                sleep(0.001)
+    led.LED_OFF()
 
 try:
     Init()
-    LED_test(2)
+    LED_test(1)
     print("Testing ADC")
     for N in range(8):    
         print("ADC CH" + str(N) + ": " + str(ADC_test(N)))

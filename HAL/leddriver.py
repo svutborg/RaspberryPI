@@ -1,48 +1,57 @@
-from HAL.i2c import pca9531
-import collections
+if __name__ == "__main__":
+  from i2c import pca9685
+  import time
+else:
+  from HAL.i2c import pca9685
 
 class LEDDriver:
-    LEDS = collections.OrderedDict([
-            ("LD1", 0),
-            ("LD2", 2),
-            ("LD3", 4),
-            ("LD4", 6),
-            ("LD5", 0),
-            ("LDR", 2),
-            ("LDG", 4),
-            ("LDB", 6),
-    ])
+  def __init__(self, intensity=5):
+    self.LED_intensity(intensity)
+    self.controller = pca9685.PCA9685(0x40)
+    self.controller.write_to_register(self.controller.MODE1, 1)
+    self.controller.write_to_register(self.controller.MODE2, 0)
+    
+    self.LED_OFF()
+  
+  def LED_OFF(self):
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(0, 0, 1), 1<<4)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(0, 1, 1), 0)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(1, 0, 1), 1<<4)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(1, 1, 1), 0)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(2, 0, 1), 1<<4)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(2, 1, 1), 0)
+  
+  def LED_ON(self):
+    self._set_duty((255>>3)*self.intensity, 2)
+    self._set_duty((255>>3)*self.intensity, 1)
+    self._set_duty((255>>3)*self.intensity, 0)
+  
+  def LED_RGB(self, r, g, b):
+    assert 0x00 <= r <= 0xFF 
+    assert 0x00 <= g <= 0xFF 
+    assert 0x00 <= b <= 0xFF
+    
+    self._set_duty((r>>3)*self.intensity, 2)
+    self._set_duty((g>>3)*self.intensity, 1)
+    self._set_duty((b>>3)*self.intensity, 0)
+  
+  def LED_intensity(self, i):
+    self.intensity = int(i*1.28)
 
-    def __init__(self):
-        self.controller = pca9531.PCA9531(0x60)
-        self.LS0_State = self.controller.read_from_register(self.controller.LS0_r)
-        self.LS1_State = self.controller.read_from_register(self.controller.LS1_r)
-
-    def LED_on(self, led):
-        if led in list(self.LEDS.keys())[0:4]:
-            self.LS0_State = 0x01<<self.LEDS[led] | self.LS0_State
-            self.controller.write_to_register(self.controller.LS0_r, self.LS0_State)
-        else:
-            self.LS1_State = 0x01<<self.LEDS[led] | self.LS1_State
-            self.controller.write_to_register(self.controller.LS1_r, self.LS1_State)
-
-    def LED_off(self, led):
-        if led in list(self.LEDS.keys())[0:4]:
-            self.LS0_State = (~(0x03<<self.LEDS[led])) & self.LS0_State
-            self.controller.write_to_register(self.controller.LS0_r, self.LS0_State)
-        else:
-            self.LS1_State = (~(0x03<<self.LEDS[led])) & self.LS1_State
-            self.controller.write_to_register(self.controller.LS1_r, self.LS1_State)
-
-    def LED_toggle(self, led):
-        if led in list(self.LEDS.keys())[0:4]:
-            self.LS0_State = 0x01<<self.LEDS[led] ^ self.LS0_State
-            self.controller.write_to_register(self.controller.LS0_r, self.LS0_State)
-        else:
-            self.LS1_State = 0x01<<self.LEDS[led] ^ self.LS1_State
-            self.controller.write_to_register(self.controller.LS1_r, self.LS1_State)
-
+  def _set_duty(self, duty, diode):
+    assert diode in range(3)
+    assert 0 <= duty <= 0x0fff
+    duty_ = 0x0fff - duty
+    
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(diode, 0, 1), (duty  >> 8)  & 0x0f)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(diode, 1, 1), (duty_ >> 8)  & 0x0f)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(diode, 0, 0), duty  & 0x00ff)
+    self.controller.write_to_register(self.controller.LEDX_YY_Z(diode, 1, 0), duty_ & 0x00ff)
+  
 if __name__ == "__main__":
-    L = LEDDriver()
-    L.LED_on("LD3")
-    print("LED3 on")
+  L = LEDDriver()
+  L.LED_ON()
+  time.sleep(1)
+  L.LED_RGB(120, 0, 120)
+  time.sleep(1)
+  L.LED_OFF()

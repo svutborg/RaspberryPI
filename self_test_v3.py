@@ -51,6 +51,8 @@ sleep(0.5)
 G.output(20,0)
 
 print("Testing ADC")
+G.setup(7, G.OUT)
+G.output(7,0)
 adc = MCP3008(device=1, channel=0)
 print(adc.value)
 adc = MCP3008(device=1, channel=1)
