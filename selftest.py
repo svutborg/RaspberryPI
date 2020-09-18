@@ -33,7 +33,7 @@ def buttons_test():
             G.output(23, 1)
 
 
-def MOTOR_test():
+def motor_test():
     print("Testing motor driver")
     G.setup([16, 26, 12, 20, 21, 13], G.OUT)
     G.output([12, 13], 1)
@@ -60,7 +60,7 @@ def MOTOR_test():
     G.output([12, 13], 0)
 
 
-def ADC_test(channel=0):
+def adc_test(channel=0):
     spi.open(bus=0, device=0)
     spi.max_speed_hz = 50000
     to_send = [0x01, channel << 4, 0x55]
@@ -72,9 +72,9 @@ def ADC_test(channel=0):
     return ((to_send[1] & 0x03) << 8) + to_send[2]
 
 
-def led_test(N):
+def led_test(n):
     print("Testing LEDs")
-    for i in range(N):
+    for i in range(n):
         for j in range(3):
             for k in chain(range(256), range(255, -1, -1)):
                 led.LED_RGB(k if j == 0 else 0, k if j == 1 else 0, k if j == 2 else 0)
@@ -87,8 +87,8 @@ try:
     led_test(1)
     print("Testing ADC")
     for N in range(8):
-        print("ADC CH" + str(N) + ": " + str(ADC_test(N)))
-    MOTOR_test()
+        print("ADC CH" + str(N) + ": " + str(adc_test(N)))
+    motor_test()
     buttons_test()
 except KeyboardInterrupt:
     led.LED_OFF()
