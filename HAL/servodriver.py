@@ -16,7 +16,6 @@ class ServoDriver:
 			assert 10 <= led <= 15  # Check that led nr is correct range for servo pins
 
 			on = math.floor(width*4096/20)
-			print(on)
 
 			self.controller.write_to_register(self.controller.LEDX_YY_Z(led, 0, 0), 0)
 			self.controller.write_to_register(self.controller.LEDX_YY_Z(led, 0, 1), 0)

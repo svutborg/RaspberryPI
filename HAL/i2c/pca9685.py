@@ -24,7 +24,7 @@ class PCA9685:
 			self.deviceAddress = device_address
 			self.bus = smbus.SMBus(1)
 			self.write_to_register(self.MODE1, 1 << 4)
-			pre = math.round(25000000/(4096*frequency)-1)
+			pre = math.floor(25000000/(4096*frequency)-1)
 			assert 3 <= pre <= 255
 			self.write_to_register(0xFE, pre)  # set prescaler for 50 Hz round((osc_clk)/(4096*50))-1 -> 121
 			self.write_to_register(self.MODE1, 1)
