@@ -8,7 +8,7 @@ else:
 class LEDDriver:
 	intensity = 0
 
-	def __init__(self, intensity=5):
+	def __init__(self, intensity=5, pihat_version=4):
 		self.led_intensity(intensity)
 		self.controller = pca9685.PCA9685(0x40, pca9685.PCA9685.OPENDRAIN)
 

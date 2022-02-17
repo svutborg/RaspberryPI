@@ -28,7 +28,6 @@ class mcp23017:
 
     def __init__(self, address=0):
         self.address = 0b0100000 | address # [0 1 0 0 A2 A1 A0]
-        print(hex(self.address))
         self.bus = SMBus(1)
 
     def write_register(self, register, data):

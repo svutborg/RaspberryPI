@@ -84,7 +84,7 @@ def led_test(n):
 
 try:
 	init()
-	led_test(1)
+	#led_test(1)
 	print("Testing ADC")
 	for N in range(8):
 		print("ADC CH" + str(N) + ": " + str(adc_test(N)))

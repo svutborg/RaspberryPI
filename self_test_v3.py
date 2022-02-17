@@ -1,8 +1,9 @@
 import RPi.GPIO as G
 from time import sleep
 from HAL import leddriver
-from gpiozero import MCP3008
-
+#from gpiozero import MCP3008
+import spidev
+'''
 print("Testing LEDs")
 L = leddriver.LEDDriver()
 L.LED_on("LD1")
@@ -49,7 +50,27 @@ G.output(21,0)
 G.output(20,1)
 sleep(0.5)
 G.output(20,0)
+'''
+spi = spidev.SpiDev()
+spi.open(bus=0, device=1)
+spi.max_speed_hz = 50000
 
+def adc_read(channel=0):
+	to_send = [0x01, 0x80 | channel<<4, 0x55]
+	to_send = spi.xfer2(to_send)
+	print(to_send)
+	return ((to_send[1]&0x03)<<8) + to_send[2]
+
+
+def adc_test():
+	print("Testing ADC")
+	for N in range(8):
+		print("ADC CH" + str(N) + ": " + str(adc_read(channel=N)))
+							 
+sleep(2)
+
+adc_test()
+'''
 print("Testing ADC")
 G.setup(7, G.OUT)
 G.output(7,0)
@@ -81,11 +102,11 @@ directions = {
 G.setmode(G.BCM)
 for dir in directions:
     #print(dir)
-    G.setup(directions[dir], G.IN)
+    G.setup(directions[dir], G.IN)'''
 '''    while True:
         if G.input(directions[dir]) == 1:
             break
-G.cleanup'''
+G.cleanup
 while True:
     if G.input(directions["up"]) == 1:
         L.LED_on("LD1")
@@ -107,3 +128,4 @@ while True:
         L.LED_on("LD5")
     else:
         L.LED_off("LD5")
+'''

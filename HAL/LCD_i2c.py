@@ -1,6 +1,6 @@
 from HAL.i2c.mcp23017 import mcp23017
 from time import sleep
-#import HAL.i2c.mcp23017.mcp23017 as mcp23017
+
 A0 = 0x00
 A1 = 0x01
 A2 = 0x02
@@ -48,10 +48,10 @@ def __write(rs, data):
     __mcp.write_register(mcp23017.OLATB, data)
 
     # Toggle enable
-    lata = lata | (1<<6)
+    lata = lata | (1<<5)
     __mcp.write_register(mcp23017.OLATA, lata)
     sleep(0.000001)  # wait 1 us
-    lata = lata & (~(1<<6))
+    lata = lata & (~(1<<5))
     __mcp.write_register(mcp23017.OLATA, lata)
 
 
@@ -82,11 +82,11 @@ def init_display(rs=A7, e=A6, d=PORTB, n_lines=0, font=0):
 
     # define pins as outputs
     __mcp.write_register(mcp23017.IODIRB, 0x00)
-    __mcp.write_register(mcp23017.IODIRA, 0x3F)
+    __mcp.write_register(mcp23017.IODIRA, 0x0F)
 
     # set enable low
     lata = __mcp.read_register(mcp23017.OLATA)
-    lata = lata & (~(1<<6))
+    lata = lata & (~(1<<5))
     __mcp.write_register(mcp23017.OLATA, lata)
 
     # run init sequence
@@ -102,45 +102,7 @@ def init_display(rs=A7, e=A6, d=PORTB, n_lines=0, font=0):
     entry_mode_set(1, 0)
 
     display_on_off(1, 1, 1)
-    '''
-        global __rs
-        global __e
-        global __d
-        global __mode
-        global __lines
 
-        GPIO.setmode(GPIO.BCM)
-        __rs = rs_bcm  # type: int
-        __e = e_bcm  # type: int
-        __d = d_bcm  # type: [int]
-        __lines = n_lines
-        GPIO.setup(rs_bcm, GPIO.OUT)
-        GPIO.setup(e_bcm, GPIO.OUT)
-        GPIO.setup(e_bcm, GPIO.LOW)
-        for i in d_bcm:
-            GPIO.setup(i, GPIO.OUT)
-
-        function_set(1, 0, 0)
-        sleep(0.005)  # wait 5 ms
-        function_set(1, 0, 0)
-        sleep(0.0005)  # wait 500 us
-        function_set(1, 0, 0)
-
-        if len(d_bcm) == 8:  # Auto set mode from number of data pins provided
-            __mode = 8
-            function_set(1, n_lines, font)
-            display_on_off(0, 1, 1)
-            clear_display()
-            entry_mode_set(1, 0)
-        else:
-            __mode = 4
-            function_set(0, n_lines, font)
-            display_on_off(0, 1, 1)
-            clear_display()
-            entry_mode_set(1, 0)
-
-        display_on_off(1, 1, 1)
-        '''
 
 def write_char(c):
     __write_data(ord(c))
