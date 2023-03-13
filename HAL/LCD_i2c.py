@@ -26,33 +26,37 @@ PORTB = [B0, B1, B2, B3, B4, B5, B6, B7]
 __rs = 0
 __e = 0
 __d = []
-__mode = 0
-__lines = 0
+
 
 def __write(rs, data):
     global __mcp
+    global __data_lat
+    global __ctrl_lat
+    global __rs
+    global __e
 
-    lata = __mcp.read_register(mcp23017.OLATA)
+    #lata = __mcp.read_register(__mcp.OLATA)
+    clat = __mcp.read_register(__ctrl_lat)
 
     # The following is hardcoded doe to time constants:
     # RS A7, E A6, D0-7 D0-7
 
     # set RS
     if rs == 0:
-        lata = lata & (~(1<<7))
+        clat = clat & (~(1<<__rs))
     else:
-        lata = lata | (1<<7)
-    __mcp.write_register(mcp23017.OLATA, lata)
+        clat = clat | (1<<__rs)
+    __mcp.write_register(__ctrl_lat, clat)
 
     # set data
-    __mcp.write_register(mcp23017.OLATB, data)
+    __mcp.write_register(__data_lat, data)
 
     # Toggle enable
-    lata = lata | (1<<5)
-    __mcp.write_register(mcp23017.OLATA, lata)
+    clat = clat | (1<<__e)
+    __mcp.write_register(__ctrl_lat, clat)
     sleep(0.000001)  # wait 1 us
-    lata = lata & (~(1<<5))
-    __mcp.write_register(mcp23017.OLATA, lata)
+    clat = clat & (~(1<<__e))
+    __mcp.write_register(__ctrl_lat, clat)
 
 
 def __write_command(cmd):
@@ -62,32 +66,44 @@ def __write_command(cmd):
 def __write_data(data):
     __write(1, data)
 
-def init_display(rs=A7, e=A6, d=PORTB, n_lines=0, font=0):
+def init_display(rs, e, d, n_lines=0, font=0, line_addresses = [0, 46, 20, 84], i2c_address = 0x20):
     global __rs
     global __e
-    global __d
-    global __mode
-    global __lines
     global __mcp
+    global __line_addresses
+    global __ctrl_lat 
+    global __data_lat
 
-    __rs = rs
-    __e = e
-    __d = d
-    __lines = n_lines
+    __line_addresses = line_addresses
 
-    __mcp = mcp23017()
-
-    # The following is hardcoded doe to time constants:
-    # RS A7, E A6, D0-7 D0-7
+    __mcp = mcp23017(i2c_address)
+    if rs in PORTA and e in PORTA:
+        __ctrl_lat = __mcp.OLATA
+        __data_lat = __mcp.OLATB
+        __rs = rs
+        __e = e
+    elif rs in PORTB and e in PORTB:
+        __ctrl_lat = __mcp.OLATB
+        __data_lat = __mcp.OLATA
+        __rs = rs-8
+        __e = e-8
+    else:
+        raise AttributeError("Both rs and e must be in etiher PORTA or PORTB")
 
     # define pins as outputs
-    __mcp.write_register(mcp23017.IODIRB, 0x00)
-    __mcp.write_register(mcp23017.IODIRA, 0x0F)
+    iodir = 0x0000
+    for pin in d:
+        iodir |= 1<<pin
+    iodir |= 1<<rs
+    iodir |= 1<<e
+    iodir = ~iodir
+    __mcp.write_register(__mcp.IODIRA, iodir & 0x00FF)
+    __mcp.write_register(__mcp.IODIRB, (iodir>>8) & 0x00FF)
 
     # set enable low
-    lata = __mcp.read_register(mcp23017.OLATA)
-    lata = lata & (~(1<<5))
-    __mcp.write_register(mcp23017.OLATA, lata)
+    clat = __mcp.read_register(__ctrl_lat)
+    clat = clat & (~(1<<__e))
+    __mcp.write_register(__ctrl_lat, clat)
 
     # run init sequence
     function_set(1, 0, 0)
@@ -114,21 +130,9 @@ def write_string(s):
 
 
 def set_cursor_pos(row, col):
-    global __lines
-    if __lines == 0:
-        if row == 0:
-            set_ddram_address(col)
-        elif row == 1:
-            set_ddram_address(col+40)
-    elif __lines == 1:
-        if row == 0:
-            set_ddram_address(col)
-        elif row == 1:
-            set_ddram_address(col+64)
-        elif row == 2:
-            set_ddram_address(col+16)
-        elif row == 3:
-            set_ddram_address(col+80)
+    global __line_addresses
+    
+    set_ddram_address(__line_addresses[row] + col)
 
 
 def clear_display():
